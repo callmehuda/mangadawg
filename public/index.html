@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MangaDawg Neo Brutal Reader</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <div class="noise"></div>
+  <header class="brutal-block">
+    <h1>🐶 MangaDawg</h1>
+    <p>Neo-Brutalism Manga Reader • YAML API</p>
+  </header>
+
+  <main>
+    <section class="toolbar brutal-block">
+      <input id="searchInput" type="text" placeholder="Cari judul manga..." />
+      <button id="searchBtn">Search</button>
+      <button id="latestBtn">Latest</button>
+      <button id="popularBtn">Popular</button>
+      <button id="recommendedBtn">Recommended</button>
+    </section>
+
+    <section>
+      <h2 id="listTitle">Latest Manga</h2>
+      <div id="mangaList" class="grid"></div>
+    </section>
+
+    <section class="detail-wrap">
+      <h2>Detail & Chapter</h2>
+      <article id="detail" class="brutal-block"></article>
+      <div id="chapterImages" class="chapter-images"></div>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/js-yaml@4.1.0/dist/js-yaml.min.js"></script>
+  <script src="/index.js"></script>
+</body>
+</html>
