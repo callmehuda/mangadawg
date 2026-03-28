@@ -1,0 +1,55 @@
+name: Build Run Tunnel
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["main", "work"]
+
+jobs:
+  build-run-expose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      CLOUDFLARED_TOKEN: eyJhIjoiOWFjMWUxOTExMmU5ZWZmZDIzNmFlNDk1NDIyYmY2ZjgiLCJ0IjoiZjU3MGYxNGYtN2UzYS00NzU4LWJhYWQtYTI2NDMyN2ZiZmQ0IiwicyI6Ik5ERTVNekJsTW1RdE0yTTRaQzAwTm1RMExUaGhZV0l0WldZM05EY3pZVGd6TjJNMSJ9
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake ninja-build g++ curl
+
+      - name: Configure
+        run: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: cmake --build build -j
+
+      - name: Run server and smoke test
+        run: |
+          ./build/mangadawg > server.log 2>&1 &
+          echo $! > server.pid
+          sleep 4
+          curl -f http://127.0.0.1:8080/api
+
+      - name: Install cloudflared
+        run: |
+          curl -L https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb -o cloudflared.deb
+          sudo dpkg -i cloudflared.deb
+
+      - name: Start cloudflared tunnel
+        run: |
+          cloudflared tunnel run --token "$CLOUDFLARED_TOKEN" > tunnel.log 2>&1 &
+          sleep 20
+          tail -n 40 tunnel.log
+
+      - name: Keep alive for manual test
+        run: sleep 300
+
+      - name: Cleanup
+        if: always()
+        run: |
+          if [ -f server.pid ]; then kill $(cat server.pid) || true; fi
+          pkill cloudflared || true
